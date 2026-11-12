@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.grafkom</groupId>
+    <artifactId>VisualRealismSuite</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>3D Visual Realism Suite</name>
+    <description>Tugas Mandiri Grafika Komputer Minggu 11 - Shading, HSR, Texture Mapping, Shadow Mapping (Modern OpenGL/GLSL)</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Java 17+ (modul ajar: Java 17+). Boleh dinaikkan ke 21 / 24 sesuai JDK Anda. -->
+        <maven.compiler.release>17</maven.compiler.release>
+
+        <exec.mainClass>com.grafkom.app.VisualRealismSuite</exec.mainClass>
+
+        <lwjgl.version>3.3.3</lwjgl.version>
+        <joml.version>1.10.5</joml.version>
+
+        <!-- Nilai default; ditimpa otomatis oleh profile OS di bawah -->
+        <lwjgl.natives>natives-windows</lwjgl.natives>
+        <jvm.extra.args>-Dgrafkom.app=VisualRealismSuite</jvm.extra.args>
+    </properties>
+
+    <!-- Deteksi OS otomatis -> native library LWJGL yang tepat -->
+    <profiles>
+        <profile>
+            <id>natives-windows-amd64</id>
+            <activation><os><family>windows</family><arch>amd64</arch></os></activation>
+            <properties><lwjgl.natives>natives-windows</lwjgl.natives></properties>
+        </profile>
+        <profile>
+            <id>natives-windows-arm64</id>
+            <activation><os><family>windows</family><arch>aarch64</arch></os></activation>
+            <properties><lwjgl.natives>natives-windows-arm64</lwjgl.natives></properties>
+        </profile>
+        <profile>
+            <id>natives-linux-amd64</id>
+            <activation><os><family>unix</family><name>linux</name><arch>amd64</arch></os></activation>
+            <properties><lwjgl.natives>natives-linux</lwjgl.natives></properties>
+        </profile>
+        <profile>
+            <id>natives-linux-arm64</id>
+            <activation><os><family>unix</family><name>linux</name><arch>aarch64</arch></os></activation>
+            <properties><lwjgl.natives>natives-linux-arm64</lwjgl.natives></properties>
+        </profile>
+        <profile>
+            <id>natives-macos-x86_64</id>
+            <activation><os><family>mac</family><arch>x86_64</arch></os></activation>
+            <properties>
+                <lwjgl.natives>natives-macos</lwjgl.natives>
+                <jvm.extra.args>-XstartOnFirstThread</jvm.extra.args>
+            </properties>
+        </profile>
+        <profile>
+            <id>natives-macos-aarch64</id>
+            <activation><os><family>mac</family><arch>aarch64</arch></os></activation>
+            <properties>
+                <lwjgl.natives>natives-macos-arm64</lwjgl.natives>
+                <jvm.extra.args>-XstartOnFirstThread</jvm.extra.args>
+            </properties>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.lwjgl</groupId>
+                <artifactId>lwjgl-bom</artifactId>
+                <version>${lwjgl.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- JOML (Java OpenGL Math Library) -->
+        <dependency>
+            <groupId>org.joml</groupId>
+            <artifactId>joml</artifactId>
+            <version>${joml.version}</version>
+        </dependency>
+
+        <!-- LWJGL: core, GLFW (window + input), OpenGL -->
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl</artifactId></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-glfw</artifactId></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-opengl</artifactId></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-stb</artifactId></dependency>
+
+        <!-- LWJGL native binaries (dipilih otomatis sesuai OS) -->
+        <dependency>
+            <groupId>org.lwjgl</groupId><artifactId>lwjgl</artifactId>
+            <classifier>${lwjgl.natives}</classifier><scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId><artifactId>lwjgl-glfw</artifactId>
+            <classifier>${lwjgl.natives}</classifier><scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId><artifactId>lwjgl-opengl</artifactId>
+            <classifier>${lwjgl.natives}</classifier><scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId><artifactId>lwjgl-stb</artifactId>
+            <classifier>${lwjgl.natives}</classifier><scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+            </plugin>
+
+            <!-- Jalankan dengan:  mvn compile exec:exec -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>${jvm.extra.args}</argument>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>${exec.mainClass}</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
